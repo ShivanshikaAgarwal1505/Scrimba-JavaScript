@@ -14,83 +14,75 @@ h1, h2, #score{
     position: relative;
     margin-top: 20vh;
 }
+
 /* card */
-.myCard {
+.scene {
+    display: inline-block;
+    width: 200px;
+    height: 260px;
+    perspective: 600px;
     background-color: transparent;
-    width: 190px;
-    height: 254px;
     perspective: 1000px;
 }
 
-.title {
-    font-size: 1.5em;
-    font-weight: 900;
-    text-align: center;
-    margin: 0;
-}
-
-.innerCard {
+.card {
     position: relative;
     width: 100%;
     height: 100%;
-    text-align: center;
-    transition: transform 0.8s;
-    transform-style: preserve-3d;
     cursor: pointer;
+    text-align: center;
+    transform-style: preserve-3d;
+    transform-origin: center right;
+    transition: transform 0.8s;
 }
 
-.myCard:hover .innerCard {
-    transform: rotateY(180deg);
+.card.is-flipped {
+    transform: translateX(-100%) rotateY(-180deg);
 }
 
-.frontSide,
-.backSide {
+.card__face {
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: .5rem;
-    color: white;
-    box-shadow: 0 0 0.3em rgba(255, 255, 255, 0.5);
-    font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: .5rem;
+        color: white;
+        box-shadow: 0 0 0.3em rgba(255, 255, 255, 0.5);
+        font-weight: 700;
 }
-
-.frontSide,
-.frontSide::before {
+.card__face--front, .card__face--front::before {
     background: linear-gradient(43deg, rgb(65, 88, 208) 0%, rgb(200, 80, 192) 46%, rgb(255, 204, 112) 100%);
 }
 
-.backSide,
-.backSide::before {
+.card__face--back, .card__face--back::before {
     background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
 }
 
-.backSide {
+.card__face--back{
     transform: rotateY(180deg);
 }
-
-.frontSide::before,
-.backSide::before {
+.card__face--back::before,
+.card__face--front::before{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     content: '';
-    width: 110%;
-    height: 110%;
+    width: 102%;
+    height: 102%;
     position: absolute;
     z-index: -1;
     border-radius: 1em;
     filter: blur(20px);
-    animation: animate 5s linear infinite;
-}
+    animation: animate2 5s linear infinite;
+} 
 
-@keyframes animate {
+@keyframes animate2 {
     0% {
         opacity: 0.3;
     }

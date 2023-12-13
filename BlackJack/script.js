@@ -16,3 +16,10 @@ else if (sum>21){
     msg="Out of game.";
     cash=false;
 }
+var cards = document.querySelectorAll(".card");
+
+[...cards].forEach((card) => {
+  card.addEventListener("click", function () {
+    card.classList.toggle("is-flipped");
+  });
+});
