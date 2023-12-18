@@ -6,124 +6,130 @@ var cards = document.querySelectorAll(".card");
   });
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  const playerHand = document.getElementById("player-hand");
-  const dealerHand = document.getElementById("dealer-hand");
-  const playerCards = document.getElementById("player-cards");
-  const dealerCards = document.getElementById("dealer-cards");
-  const playerScoreElement = document.getElementById("player-score");
-  const dealerScoreElement = document.getElementById("dealer-score");
-  const dealBtn = document.getElementById("deal-btn");
-  const hitBtn = document.getElementById("hit-btn");
-  const standBtn = document.getElementById("stand-btn");
-  const resultElement = document.getElementById("result");
+let playerHand = [];
+let dealerHand = [];
+let isGameStarted = false;
 
-  let playerHandValue = 0;
-  let dealerHandValue = 0;
-  let playerHandArray = [];
-  let dealerHandArray = [];
-  let isGameOver = false;
+function startGame() {
+  playerHand = [];
+  dealerHand = [];
+  isGameStarted = true;
 
-  function dealCard(hand, handValue, handArray) {
-    const cardValue = Math.floor(Math.random() * 13) + 1; // 1 to 13 representing Ace to King
-    const card = cardValue > 10 ? 10 : cardValue;
-    handValue += card;
-    handArray.push(card);
+  dealCard(playerHand);
+  dealCard(dealerHand);
+  dealCard(playerHand);
+  dealCard(dealerHand);
+
+  updateUI();
+}
+
+function dealCard(hand) {
+  //push card value in reapective stack
+  const cards = [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A",
+  ];
+  const randomIndex = Math.floor(Math.random() * cards.length);
+  const card = cards[randomIndex];
+  hand.push(card);
+}
+
+function updateUI() {
+  if (isGameStarted) {
+    //updates buttons
+    document.getElementById("deal-btn").disabled = true;
+    document.getElementById("hit-btn").disabled = false;
+    document.getElementById("stand-btn").disabled = false;
+  }
+
+  displayHand(playerHand, "player-cards", "player-score");
+  displayHand(dealerHand, "dealer-cards", "dealer-score");
+
+  const playerScore = calculateHandValue(playerHand);
+  const dealerScore = calculateHandValue(dealerHand);
+
+  document.getElementById("player-score").textContent = `Score: ${playerScore}`;
+  document.getElementById("dealer-score").textContent = `Score: ${dealerScore}`;
+
+  if (playerScore > 21) {
+    endGame("You busted. Dealer wins!");
+  }
+}
+
+function displayHand(hand, containerId, scoreId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  for (let card of hand) {
     const cardElement = document.createElement("div");
     cardElement.classList.add("card");
     cardElement.textContent = card;
-    hand.appendChild(cardElement);
-    return handValue;
+    container.appendChild(cardElement);
   }
 
-  function dealInitialCards() {
-    playerHandValue = dealCard(playerCards, playerHandValue, playerHandArray);
-    dealerHandValue = dealCard(dealerCards, dealerHandValue, dealerHandArray);
-    playerHandValue = dealCard(playerCards, playerHandValue, playerHandArray);
-    dealerHandValue = dealCard(dealerCards, dealerHandValue, dealerHandArray);
-    updateScores();
-  }
+  const score = calculateHandValue(hand);
+  document.getElementById(scoreId).textContent = `Score: ${score}`;
+}
 
-  function updateScores() {
-    playerScoreElement.textContent = `Score: ${playerHandValue}`;
-    dealerScoreElement.textContent = `Score: ${dealerHandValue}`;
-  }
+function calculateHandValue(hand) {
+  let sum = 0;
+  let hasAce = false;
 
-  function checkBlackjack() {
-    if (playerHandValue === 21) {
-      endGame("Player wins with Blackjack!");
-    } else if (dealerHandValue === 21) {
-      endGame("Dealer wins with Blackjack!");
+  for (let card of hand) {
+    if (card === "A") {
+      hasAce = true;
+      sum += 11;
+    } else if (card === "K" || card === "Q" || card === "J") {
+      sum += 10;
+    } else {
+      sum += parseInt(card);
     }
   }
 
-  function checkBust() {
-    if (playerHandValue > 21) {
-      endGame("Player busts! Dealer wins.");
-    } else if (dealerHandValue > 21) {
-      endGame("Dealer busts! Player wins.");
-    }
+  if (hasAce && sum > 21) {
+    sum -= 10;
   }
 
-  function endGame(message) {
-    isGameOver = true;
-    resultElement.textContent = message;
-    dealBtn.disabled = false;
-    hitBtn.disabled = true;
-    standBtn.disabled = true;
+  return sum;
+}
+
+function hit() {
+  if (!isGameStarted) return;
+
+  dealCard(playerHand);
+  updateUI();
+}
+
+function stand() {
+  if (!isGameStarted) return;
+
+  while (calculateHandValue(dealerHand) < 17) {
+    dealCard(dealerHand);
   }
 
-  function determineWinner() {
-    if (!isGameOver) {
-      if (playerHandValue > dealerHandValue) {
-        endGame("Player wins!");
-      } else if (dealerHandValue > playerHandValue) {
-        endGame("Dealer wins!");
-      } else {
-        endGame("It's a tie!");
-      }
-    }
+  updateUI();
+  endGame();
+}
+
+function endGame(message) {
+  isGameStarted = false;
+
+  document.getElementById("deal-btn").disabled = false;
+  document.getElementById("hit-btn").disabled = true;
+  document.getElementById("stand-btn").disabled = true;
+
+  if (message) {
+    document.getElementById("result").textContent = message;
   }
-
-  function resetGame() {
-    playerHandValue = 0;
-    dealerHandValue = 0;
-    playerHandArray = [];
-    dealerHandArray = [];
-    isGameOver = false;
-    resultElement.textContent = "";
-    playerCards.innerHTML = "";
-    dealerCards.innerHTML = "";
-    dealBtn.disabled = true;
-    hitBtn.disabled = false;
-    standBtn.disabled = false;
-  }
-
-  dealBtn.addEventListener("click", function () {
-    resetGame();
-    dealInitialCards();
-    checkBlackjack();
-  });
-
-  hitBtn.addEventListener("click", function () {
-    if (!isGameOver) {
-      playerHandValue = dealCard(playerCards, playerHandValue, playerHandArray);
-      updateScores();
-      checkBust();
-    }
-  });
-
-  standBtn.addEventListener("click", function () {
-    if (!isGameOver) {
-      while (dealerHandValue < 17) {
-        dealerHandValue = dealCard(
-          dealerCards,
-          dealerHandValue,
-          dealerHandArray
-        );
-      }
-      updateScores();
-      determineWinner();
-    }
-  });
-});
+}
