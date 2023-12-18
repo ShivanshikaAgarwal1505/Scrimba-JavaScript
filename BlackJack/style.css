@@ -18,8 +18,8 @@ h1, h2, #score{
 /* card */
 .scene {
     display: inline-block;
-    width: 200px;
-    height: 260px;
+    width: 20%;
+    height: 30vh;
     perspective: 600px;
     background-color: transparent;
     perspective: 1000px;
